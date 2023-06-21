@@ -3,15 +3,16 @@ def solution(heights):
     if N < 3:
         return 0
 
-    peaks = [False] * N
-    for i in range(1, N - 1):
-        if heights[i] > heights[i - 1] and heights[i] > heights[i + 1]:
-            peaks[i] = True
+    peaks = {
+        i
+        for i in range(1, N - 1)
+        if heights[i] > heights[i - 1] and heights[i] > heights[i + 1]
+    }
 
     next_peak = [0] * N
     next_peak[-1] = -1
     for i in range(N - 1)[::-1]:
-        if peaks[i]:
+        if i in peaks:
             next_peak[i] = i
         else:
             next_peak[i] = next_peak[i + 1]
