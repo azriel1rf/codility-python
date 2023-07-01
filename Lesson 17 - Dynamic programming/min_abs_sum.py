@@ -2,27 +2,33 @@ from collections import Counter
 
 
 def solution(A):
-    if not A:
-        return 0
-
     A = [abs(a) for a in A]
+    value_counts = Counter(A)
     total_sum = sum(A)
-    max_element = max(A)
-    count = Counter(A)
 
-    dp = [-1] * (total_sum + 1)
-    dp[0] = 0
-    for i in range(1, max_element + 1):
-        if i in count:
-            for j in range(total_sum):
-                if dp[j] >= 0:
-                    dp[j] = count[i]
-                elif j >= i and dp[j - i] > 0:
-                    dp[j] = dp[j - i] - 1
+    reachable_sums = [0] * (total_sum // 2 + 1)
+    reachable_sums[0] = 1
+    counts_for_sums = [0] * (total_sum // 2 + 1)
 
-    result = total_sum
-    for i in range(total_sum // 2 + 1):
-        if dp[i] >= 0:
-            result = min(result, total_sum - 2 * i)
+    for value, count in value_counts.items():
+        if value == 0:
+            continue
+        for i in range(len(reachable_sums)):
+            if reachable_sums[i]:
+                counts_for_sums[i] = count
+        for i in range(value, len(reachable_sums)):
+            if reachable_sums[i]:
+                continue
+            if reachable_sums[i - value] and counts_for_sums[i - value] > 0:
+                reachable_sums[i] = 1
+                counts_for_sums[i] = counts_for_sums[i - value] - 1
 
-    return result
+    min_val = float("inf")
+    for i in range(len(reachable_sums)):
+        if reachable_sums[i]:
+            positive_sum = i
+            negative_sum = -(total_sum - i)
+            val = abs(positive_sum + negative_sum)
+            min_val = min(min_val, val)
+
+    return min_val
